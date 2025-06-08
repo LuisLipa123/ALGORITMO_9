@@ -1,0 +1,117 @@
+public class GraphLink {
+    private LinkedList[] adjList;
+    private int vertices;
+
+    public GraphLink(int v) {
+        this.vertices = v;
+        adjList = new LinkedList[v];
+        for (int i = 0; i < v; i++) {
+            adjList[i] = new LinkedList();
+        }
+    }
+
+    public void addEdge(int src, int dest) {
+        if (!adjList[src].contains(dest)) adjList[src].add(dest);
+        if (!adjList[dest].contains(src)) adjList[dest].add(src); // undirected
+    }
+
+    public int getDegree(int v) {
+        return adjList[v].size();
+    }
+
+    public int[][] getAdjacencyMatrix() {
+        int[][] matrix = new int[vertices][vertices];
+        for (int i = 0; i < vertices; i++) {
+            Node current = adjList[i].getHead();
+            while (current != null) {
+                matrix[i][current.data] = 1;
+                current = current.next;
+            }
+        }
+        return matrix;
+    }
+
+    public boolean isComplete() {
+        for (int i = 0; i < vertices; i++) {
+            if (getDegree(i) != vertices - 1) return false;
+        }
+        return true;
+    }
+
+    public boolean isCycle() {
+        for (int i = 0; i < vertices; i++) {
+            if (getDegree(i) != 2) return false;
+        }
+        return isConnected();
+    }
+
+    public boolean isPath() {
+        int endPoints = 0;
+        for (int i = 0; i < vertices; i++) {
+            int deg = getDegree(i);
+            if (deg == 1) endPoints++;
+            else if (deg != 2) return false;
+        }
+        return endPoints == 2 && isConnected();
+    }
+
+    public boolean isWheel() {
+        int center = -1, centerCount = 0;
+
+        for (int i = 0; i < vertices; i++) {
+            if (getDegree(i) == vertices - 1) {
+                center = i;
+                centerCount++;
+            }
+        }
+
+        if (centerCount != 1) return false;
+
+        GraphLink subGraph = new GraphLink(vertices - 1);
+        int idx = 0;
+        int[] mapping = new int[vertices];
+
+        for (int i = 0; i < vertices; i++) {
+            if (i != center) {
+                mapping[i] = idx++;
+            }
+        }
+
+        for (int i = 0; i < vertices; i++) {
+            if (i == center) continue;
+            Node current = adjList[i].getHead();
+            while (current != null) {
+                if (current.data != center && current.data > i) {
+                    subGraph.addEdge(mapping[i], mapping[current.data]);
+                }
+                current = current.next;
+            }
+        }
+
+        return subGraph.isCycle();
+    }
+
+    private boolean isConnected() {
+        boolean[] visited = new boolean[vertices];
+        dfs(0, visited);
+        for (boolean v : visited)
+            if (!v) return false;
+        return true;
+    }
+
+    private void dfs(int v, boolean[] visited) {
+        visited[v] = true;
+        Node current = adjList[v].getHead();
+        while (current != null) {
+            if (!visited[current.data])
+                dfs(current.data, visited);
+            current = current.next;
+        }
+    }
+
+    public void printDegrees() {
+        for (int i = 0; i < vertices; i++) {
+            System.out.println("G" + i + ": " + getDegree(i));
+        }
+    }
+}
