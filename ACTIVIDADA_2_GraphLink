@@ -1,0 +1,93 @@
+public class GraphLink<E> {
+    protected ListLinked<Vertex<E>> listVertex;
+
+    public GraphLink() {
+        listVertex = new ListLinked<>();
+    }
+
+    public void insertVertex(E data) {
+        if (searchVertex(data) == null) {
+            listVertex.insert(new Vertex<>(data));
+        }
+    }
+
+    public void insertEdge(E verOri, E verDes) {
+        Vertex<E> vOri = searchVertex(verOri);
+        Vertex<E> vDes = searchVertex(verDes);
+
+        if (vOri == null) {
+            vOri = new Vertex<>(verOri);
+            listVertex.insert(vOri);
+        }
+
+        if (vDes == null) {
+            vDes = new Vertex<>(verDes);
+            listVertex.insert(vDes);
+        }
+
+        vOri.listAdj.insert(new Edge<>(vDes));
+        vDes.listAdj.insert(new Edge<>(vOri));
+    }
+
+    public Vertex<E> searchVertex(E data) {
+        for (Node<Vertex<E>> aux = listVertex.getHead(); aux != null; aux = aux.next) {
+            if (aux.data.getData().equals(data)) return aux.data;
+        }
+        return null;
+    }
+
+    public boolean searchEdge(E v, E z) {
+        Vertex<E> origin = searchVertex(v);
+        Vertex<E> dest = searchVertex(z);
+        if (origin != null && dest != null) {
+            return origin.listAdj.contains(new Edge<>(dest));
+        }
+        return false;
+    }
+
+    public void removeEdge(E v, E z) {
+        Vertex<E> origin = searchVertex(v);
+        Vertex<E> dest = searchVertex(z);
+        if (origin != null && dest != null) {
+            origin.listAdj.remove(new Edge<>(dest));
+            dest.listAdj.remove(new Edge<>(origin));
+        }
+    }
+
+    public void removeVertex(E v) {
+        Vertex<E> toRemove = searchVertex(v);
+        if (toRemove != null) {
+            // Remove edges from other vertices pointing to this
+            for (Node<Vertex<E>> aux = listVertex.getHead(); aux != null; aux = aux.next) {
+                aux.data.listAdj.remove(new Edge<>(toRemove));
+            }
+            // Remove vertex
+            listVertex.remove(toRemove);
+        }
+    }
+
+    public void dfs(E start) {
+        Vertex<E> vStart = searchVertex(start);
+        if (vStart == null) return;
+
+        ListLinked<Vertex<E>> visited = new ListLinked<>();
+        dfsHelper(vStart, visited);
+    }
+
+    private void dfsHelper(Vertex<E> v, ListLinked<Vertex<E>> visited) {
+        System.out.print(v.getData() + " ");
+        visited.insert(v);
+
+        for (Node<Edge<E>> aux = v.listAdj.getHead(); aux != null; aux = aux.next) {
+            Vertex<E> neighbor = aux.data.getRefDest();
+            if (!visited.contains(neighbor)) {
+                dfsHelper(neighbor, visited);
+            }
+        }
+    }
+
+    @Override
+    public String toString() {
+        return listVertex.toString();
+    }
+}
