@@ -1,0 +1,35 @@
+import java.util.HashMap;
+
+public class Graph<T> {
+    private HashMap<T, ListLinked<T>> adjacencyList;
+
+    public Graph() {
+        adjacencyList = new HashMap<>();
+    }
+
+    public void addVertex(T vertex) {
+        if (!adjacencyList.containsKey(vertex)) {
+            adjacencyList.put(vertex, new ListLinked<>());
+        }
+    }
+
+    public void addEdge(T v1, T v2) {
+        addVertex(v1);
+        addVertex(v2);
+
+        if (!adjacencyList.get(v1).contains(v2)) {
+            adjacencyList.get(v1).insert(v2);
+        }
+
+        if (!adjacencyList.get(v2).contains(v1)) {
+            adjacencyList.get(v2).insert(v1);
+        }
+    }
+
+    public void printGraph() {
+        for (T vertex : adjacencyList.keySet()) {
+            System.out.print(vertex + " → ");
+            adjacencyList.get(vertex).printList();
+        }
+    }
+}
