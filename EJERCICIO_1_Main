@@ -1,0 +1,30 @@
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Número de vértices: ");
+        int v = sc.nextInt();
+
+        GraphLink graph = new GraphLink(v);
+
+        System.out.println("Ingrese aristas (formato: src dest), -1 -1 para terminar:");
+        while (true) {
+            int src = sc.nextInt();
+            int dest = sc.nextInt();
+            if (src == -1 || dest == -1) break;
+            graph.addEdge(src, dest);
+        }
+
+        System.out.println("\nGrados de los nodos:");
+        graph.printDegrees();
+
+        System.out.println("\nTipo de grafo detectado:");
+        if (graph.isComplete()) System.out.println("Completo (K" + v + ")");
+        else if (graph.isCycle()) System.out.println("Ciclo (C" + v + ")");
+        else if (graph.isPath()) System.out.println("Camino (P" + v + ")");
+        else if (graph.isWheel()) System.out.println("Rueda (W" + v + ")");
+        else System.out.println("No es un tipo especial reconocido.");
+    }
+}
